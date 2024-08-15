@@ -553,6 +553,22 @@ br-rootfs-prepare:
 	# copy ko and mmf libs
 	${Q}mkdir -p $(BR_OVERLAY_DIR)/mnt/system
 	${Q}cp -arf ${SYSTEM_OUT_DIR}/* $(BR_OVERLAY_DIR)/mnt/system/
+
+	# copy buildroot overlay files
+	${Q}cp -arf $(TOP_DIR)/device/generic/br_overlay/common/* $(BR_OVERLAY_DIR)/
+ifneq ($(wildcard $(TOP_DIR)/device/generic/br_overlay/$(SDK_VER)),)
+	${Q}cp -arf $(TOP_DIR)/device/generic/br_overlay/$(SDK_VER)/* $(BR_OVERLAY_DIR)/
+endif
+
+	# copy rootfs overlay files
+	${Q}cp -arf $(TOP_DIR)/device/generic/rootfs_overlay/common/* $(BR_OVERLAY_DIR)/
+ifneq ($(wildcard $(TOP_DIR)/device/generic/rootfs_overlay/$(SDK_VER)),)
+	${Q}cp -arf $(TOP_DIR)/device/generic/rootfs_overlay/$(SDK_VER)/* $(BR_OVERLAY_DIR)/
+endif
+
+	# copy board overlay files
+	${Q}cp -arf $(TOP_DIR)/device/$(BR_BOARD)/overlay/* $(BR_OVERLAY_DIR)/
+
 	# strip
 	${Q}find $(BR_OVERLAY_DIR) -name "*.ko" -type f -printf 'striping %p\n' -exec $(CROSS_COMPILE_KERNEL)strip --strip-unneeded {} \;
 	${Q}find $(BR_OVERLAY_DIR) -name "*.so*" -type f -printf 'striping %p\n' -exec $(CROSS_COMPILE_KERNEL)strip --strip-all {} \;
