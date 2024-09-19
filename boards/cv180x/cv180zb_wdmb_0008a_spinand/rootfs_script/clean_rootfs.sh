@@ -4,6 +4,8 @@ SYSTEM_DIR=$1
 rm -rf $SYSTEM_DIR/mnt/system/usr
 rm -rf $SYSTEM_DIR/mnt/system/lib
 
+rm -rf $SYSTEM_DIR/etc/init.d/S01syslogd
+rm -rf $SYSTEM_DIR/etc/init.d/S02klogd
 rm -rf $SYSTEM_DIR/etc/init.d/S02sysctl
 rm -rf $SYSTEM_DIR/etc/init.d/S20urandom
 rm -rf $SYSTEM_DIR/etc/init.d/S40network
@@ -15,6 +17,8 @@ rm -rf $SYSTEM_DIR/mnt/cfg/secure.img
 #del cv181x_mipi_tx.ko
 rm -rf $SYSTEM_DIR/mnt/system/ko/cv181x_mipi_tx.ko
 sed -i "/cv181x_mipi_tx.ko/d" $SYSTEM_DIR/mnt/system/ko/loadsystemko.sh
+sed -i "/cvi_ipcm.ko/d" $SYSTEM_DIR/mnt/system/ko/loadsystemko.sh
+sed -i "/echo \${UDC} >\$CVI_GADGET\/UDC/d" $SYSTEM_DIR/etc/run_usb.sh
 
 if [ $BUILD_FOR_DEBUG != "y" ]
 then
