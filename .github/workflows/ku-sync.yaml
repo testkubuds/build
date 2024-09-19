@@ -1,0 +1,45 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '10 */12 * * *' # every 12 hours
+  workflow_dispatch:
+
+concurrency: ku-sync
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - branch-type: default
+            upstream-branch-name: "sg200x-dev"
+          - branch-type: upstream
+            current-branch-name: "sg200x-dev"
+            upstream-branch-name: "sg200x-dev"
+    steps:
+      - name: Prepare variables
+        id: prepare-variables
+        run: |
+          if [[ ${{ matrix.branch-type }} == "default" ]]; then
+            echo "cur_branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >>$GITHUB_OUTPUT
+            echo "title=Sync upstream to the default branch (with rebase)" >>$GITHUB_OUTPUT
+            echo "merge_method=rebase" >>$GITHUB_OUTPUT
+          else
+            echo "cur_branch=${{ matrix.current-branch-name }}" >>$GITHUB_OUTPUT
+            echo "title=Sync upstream to the ${{ matrix.current-branch-name }} branch (with merge)" >>$GITHUB_OUTPUT
+            echo "merge_method=merge" >>$GITHUB_OUTPUT
+          fi
+          echo "ups_branch=${{ matrix.upstream-branch-name }}" >>$GITHUB_OUTPUT
+      - uses: tgymnich/fork-sync@v2.0
+        with:
+          owner: ${{ github.repository_owner}}
+          base: ${{ steps.prepare-variables.outputs.cur_branch }}
+          head: ${{ steps.prepare-variables.outputs.ups_branch }}
+          merge_method: ${{ steps.prepare-variables.outputs.merge_method }}
+          pr_title: ${{ steps.prepare-variables.outputs.title }}
